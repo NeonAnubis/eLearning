@@ -1,362 +1,79 @@
 import { useRef, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, PerspectiveCamera, Text, Box, Plane, Sphere, Cylinder } from '@react-three/drei'
-import * as THREE from 'three'
+import { Canvas } from '@react-three/fiber'
+import { OrbitControls, PerspectiveCamera, useGLTF } from '@react-three/drei'
 import { Button } from './ui/button'
 import { Card } from './ui/card'
 import { Video, Mic, MicOff, VideoOff, Users, MessageSquare, Hand, Monitor } from 'lucide-react'
 
-// Stylish Modern Desk
-function Desk({ position, color = '#6B4423' }: { position: [number, number, number], color?: string }) {
-  return (
-    <group position={position}>
-      {/* Main desk surface with rounded edges */}
-      <Box args={[1.4, 0.08, 0.9]} position={[0, 0.45, 0]} castShadow>
-        <meshStandardMaterial color={color} roughness={0.3} metalness={0.1} />
-      </Box>
-      {/* Desk edge detail */}
-      <Box args={[1.42, 0.02, 0.92]} position={[0, 0.49, 0]}>
-        <meshStandardMaterial color="#4A2F1A" roughness={0.2} metalness={0.2} />
-      </Box>
-      {/* Modern metal legs */}
-      <Box args={[0.06, 0.45, 0.06]} position={[-0.6, 0.225, -0.38]} castShadow>
-        <meshStandardMaterial color="#2C2C2C" roughness={0.3} metalness={0.7} />
-      </Box>
-      <Box args={[0.06, 0.45, 0.06]} position={[0.6, 0.225, -0.38]} castShadow>
-        <meshStandardMaterial color="#2C2C2C" roughness={0.3} metalness={0.7} />
-      </Box>
-      <Box args={[0.06, 0.45, 0.06]} position={[-0.6, 0.225, 0.38]} castShadow>
-        <meshStandardMaterial color="#2C2C2C" roughness={0.3} metalness={0.7} />
-      </Box>
-      <Box args={[0.06, 0.45, 0.06]} position={[0.6, 0.225, 0.38]} castShadow>
-        <meshStandardMaterial color="#2C2C2C" roughness={0.3} metalness={0.7} />
-      </Box>
-      {/* Connecting bars */}
-      <Box args={[1.3, 0.04, 0.04]} position={[0, 0.1, -0.38]}>
-        <meshStandardMaterial color="#2C2C2C" roughness={0.3} metalness={0.7} />
-      </Box>
-      <Box args={[1.3, 0.04, 0.04]} position={[0, 0.1, 0.38]}>
-        <meshStandardMaterial color="#2C2C2C" roughness={0.3} metalness={0.7} />
-      </Box>
-    </group>
-  )
+// Classroom Model Component
+function ClassroomModel() {
+  const { scene } = useGLTF('/classroom/scene.gltf')
+  return <primitive object={scene} scale={1.5} position={[0, 0, 0]} />
 }
 
-// Modern Chair (facing forward toward the whiteboard)
-function Chair({ position }: { position: [number, number, number] }) {
-  return (
-    <group position={position}>
-      {/* Seat */}
-      <Box args={[0.55, 0.08, 0.55]} position={[0, 0.35, 0]} castShadow>
-        <meshStandardMaterial color="#1E40AF" roughness={0.4} metalness={0.1} />
-      </Box>
-      {/* Backrest - curved and stylish */}
-      <Box args={[0.55, 0.5, 0.08]} position={[0, 0.65, -0.24]} castShadow>
-        <meshStandardMaterial color="#1E3A8A" roughness={0.4} metalness={0.1} />
-      </Box>
-      {/* Backrest top support */}
-      <Box args={[0.57, 0.06, 0.1]} position={[0, 0.88, -0.24]}>
-        <meshStandardMaterial color="#1E3A8A" roughness={0.3} metalness={0.2} />
-      </Box>
-      {/* Metal frame legs */}
-      {[-0.22, 0.22].map((x) =>
-        [-0.22, 0.22].map((z) => (
-          <Cylinder key={`${x}-${z}`} args={[0.025, 0.025, 0.35, 16]} position={[x, 0.175, z]} castShadow>
-            <meshStandardMaterial color="#2C2C2C" roughness={0.2} metalness={0.8} />
-          </Cylinder>
-        ))
-      )}
-      {/* Armrests */}
-      <Box args={[0.08, 0.3, 0.4]} position={[-0.3, 0.5, -0.05]}>
-        <meshStandardMaterial color="#1E3A8A" roughness={0.4} metalness={0.1} />
-      </Box>
-      <Box args={[0.08, 0.3, 0.4]} position={[0.3, 0.5, -0.05]}>
-        <meshStandardMaterial color="#1E3A8A" roughness={0.4} metalness={0.1} />
-      </Box>
-    </group>
-  )
+// Sitting Man Model Component
+function SittingMan({ position, rotation = [0, 0, 0], scale = 0.8 }: {
+  position: [number, number, number],
+  rotation?: [number, number, number],
+  scale?: number
+}) {
+  const { scene } = useGLTF('/man_sitting/scene.gltf')
+  return <primitive object={scene.clone()} position={position} rotation={rotation} scale={scale} />
 }
 
-// Student 3D Model
-function Student({ position, color }: { position: [number, number, number], color: string }) {
-  const headRef = useRef<THREE.Group>(null)
-
-  useFrame(({ clock }) => {
-    if (headRef.current) {
-      // Subtle head movement
-      headRef.current.rotation.y = Math.sin(clock.getElapsedTime() * 0.5) * 0.1
-    }
-  })
-
-  return (
-    <group position={position}>
-      {/* Body */}
-      <Box args={[0.35, 0.5, 0.25]} position={[0, 0.65, 0]} castShadow>
-        <meshStandardMaterial color={color} />
-      </Box>
-
-      {/* Head */}
-      <group ref={headRef} position={[0, 1.05, 0]}>
-        <Sphere args={[0.18, 32, 32]} castShadow>
-          <meshStandardMaterial color="#FFD4A3" roughness={0.8} />
-        </Sphere>
-        {/* Hair */}
-        <Sphere args={[0.19, 32, 32]} position={[0, 0.05, 0]} castShadow>
-          <meshStandardMaterial color="#2C1810" roughness={0.9} />
-        </Sphere>
-      </group>
-
-      {/* Arms */}
-      <Box args={[0.12, 0.4, 0.12]} position={[-0.25, 0.6, 0.1]} rotation={[0.3, 0, 0.2]} castShadow>
-        <meshStandardMaterial color={color} />
-      </Box>
-      <Box args={[0.12, 0.4, 0.12]} position={[0.25, 0.6, 0.1]} rotation={[0.3, 0, -0.2]} castShadow>
-        <meshStandardMaterial color={color} />
-      </Box>
-
-      {/* Hands on desk */}
-      <Sphere args={[0.08, 16, 16]} position={[-0.25, 0.5, 0.3]} castShadow>
-        <meshStandardMaterial color="#FFD4A3" />
-      </Sphere>
-      <Sphere args={[0.08, 16, 16]} position={[0.25, 0.5, 0.3]} castShadow>
-        <meshStandardMaterial color="#FFD4A3" />
-      </Sphere>
-
-      {/* Legs (sitting) */}
-      <Box args={[0.14, 0.35, 0.14]} position={[-0.12, 0.25, 0]} castShadow>
-        <meshStandardMaterial color="#2C3E50" />
-      </Box>
-      <Box args={[0.14, 0.35, 0.14]} position={[0.12, 0.25, 0]} castShadow>
-        <meshStandardMaterial color="#2C3E50" />
-      </Box>
-
-      {/* Book/Laptop on desk */}
-      <Box args={[0.25, 0.02, 0.35]} position={[0, 0.53, 0.15]} castShadow>
-        <meshStandardMaterial color="#34495E" metalness={0.3} />
-      </Box>
-    </group>
-  )
-}
-
-// Teacher 3D Model
-function Teacher({ position }: { position: [number, number, number] }) {
-  const armRef = useRef<THREE.Group>(null)
-
-  useFrame(({ clock }) => {
-    if (armRef.current) {
-      // Animated arm gesturing
-      armRef.current.rotation.z = Math.sin(clock.getElapsedTime() * 1.5) * 0.3 - 0.3
-    }
-  })
-
-  return (
-    <group position={position}>
-      {/* Body */}
-      <Box args={[0.45, 0.7, 0.3]} position={[0, 1.15, 0]} castShadow>
-        <meshStandardMaterial color="#1F2937" />
-      </Box>
-
-      {/* Head */}
-      <Sphere args={[0.22, 32, 32]} position={[0, 1.75, 0]} castShadow>
-        <meshStandardMaterial color="#FFD4A3" roughness={0.8} />
-      </Sphere>
-
-      {/* Hair */}
-      <Sphere args={[0.23, 32, 32]} position={[0, 1.8, 0]} castShadow>
-        <meshStandardMaterial color="#4A2F1A" roughness={0.9} />
-      </Sphere>
-
-      {/* Glasses */}
-      <Box args={[0.35, 0.08, 0.02]} position={[0, 1.75, 0.2]}>
-        <meshStandardMaterial color="#2C2C2C" metalness={0.8} roughness={0.2} />
-      </Box>
-
-      {/* Left arm (static) */}
-      <Box args={[0.14, 0.5, 0.14]} position={[-0.32, 0.95, 0]} rotation={[0, 0, -0.3]} castShadow>
-        <meshStandardMaterial color="#1F2937" />
-      </Box>
-
-      {/* Right arm (gesturing - animated) */}
-      <group ref={armRef} position={[0.32, 1.2, 0]}>
-        <Box args={[0.14, 0.5, 0.14]} position={[0, -0.25, 0]} castShadow>
-          <meshStandardMaterial color="#1F2937" />
-        </Box>
-        {/* Hand */}
-        <Sphere args={[0.1, 16, 16]} position={[0, -0.5, 0]} castShadow>
-          <meshStandardMaterial color="#FFD4A3" />
-        </Sphere>
-      </group>
-
-      {/* Legs */}
-      <Box args={[0.16, 0.6, 0.16]} position={[-0.15, 0.5, 0]} castShadow>
-        <meshStandardMaterial color="#2C3E50" />
-      </Box>
-      <Box args={[0.16, 0.6, 0.16]} position={[0.15, 0.5, 0]} castShadow>
-        <meshStandardMaterial color="#2C3E50" />
-      </Box>
-
-      {/* Shoes */}
-      <Box args={[0.18, 0.08, 0.28]} position={[-0.15, 0.04, 0.05]} castShadow>
-        <meshStandardMaterial color="#1a1a1a" />
-      </Box>
-      <Box args={[0.18, 0.08, 0.28]} position={[0.15, 0.04, 0.05]} castShadow>
-        <meshStandardMaterial color="#1a1a1a" />
-      </Box>
-
-      {/* Pointer/Marker in hand */}
-      <Cylinder args={[0.02, 0.02, 0.4, 8]} position={[0.4, 1.2, 0.3]} rotation={[0, 0, Math.PI / 4]} castShadow>
-        <meshStandardMaterial color="#DC2626" />
-      </Cylinder>
-    </group>
-  )
-}
-
-// Enhanced Whiteboard
-function Whiteboard() {
-  return (
-    <group position={[0, 2, -4.85]}>
-      {/* Board */}
-      <Box args={[4.5, 2.2, 0.08]} castShadow receiveShadow>
-        <meshStandardMaterial color="#FFFFFF" roughness={0.2} metalness={0.1} />
-      </Box>
-
-      {/* Frame - Modern aluminum */}
-      <Box args={[4.6, 0.12, 0.1]} position={[0, 1.16, 0]}>
-        <meshStandardMaterial color="#888888" roughness={0.3} metalness={0.7} />
-      </Box>
-      <Box args={[4.6, 0.12, 0.1]} position={[0, -1.16, 0]}>
-        <meshStandardMaterial color="#888888" roughness={0.3} metalness={0.7} />
-      </Box>
-      <Box args={[0.12, 2.4, 0.1]} position={[-2.34, 0, 0]}>
-        <meshStandardMaterial color="#888888" roughness={0.3} metalness={0.7} />
-      </Box>
-      <Box args={[0.12, 2.4, 0.1]} position={[2.34, 0, 0]}>
-        <meshStandardMaterial color="#888888" roughness={0.3} metalness={0.7} />
-      </Box>
-
-      {/* Marker tray */}
-      <Box args={[4.4, 0.08, 0.15]} position={[0, -1.2, 0.08]}>
-        <meshStandardMaterial color="#888888" roughness={0.3} metalness={0.7} />
-      </Box>
-
-      {/* Text on Whiteboard */}
-      <Text
-        position={[0, 0.7, 0.05]}
-        fontSize={0.35}
-        color="#2563EB"
-        anchorX="center"
-        anchorY="middle"
-      >
-        Welcome to EduVerse
-      </Text>
-      <Text
-        position={[0, 0.2, 0.05]}
-        fontSize={0.18}
-        color="#1F2937"
-        anchorX="center"
-        anchorY="middle"
-      >
-        Virtual Classroom Experience
-      </Text>
-      <Text
-        position={[0, -0.2, 0.05]}
-        fontSize={0.14}
-        color="#6B7280"
-        anchorX="center"
-        anchorY="middle"
-      >
-        Today's Topic: Advanced Web Development
-      </Text>
-
-      {/* Some diagrams/drawings on board */}
-      <Box args={[1.5, 0.02, 0.02]} position={[-1.2, -0.6, 0.05]}>
-        <meshStandardMaterial color="#DC2626" />
-      </Box>
-      <Box args={[0.02, 0.8, 0.02]} position={[-1.95, -0.7, 0.05]}>
-        <meshStandardMaterial color="#DC2626" />
-      </Box>
-      <Box args={[0.02, 0.8, 0.02]} position={[-0.45, -0.7, 0.05]}>
-        <meshStandardMaterial color="#DC2626" />
-      </Box>
-    </group>
-  )
+// Sitting Girl Model Component
+function SittingGirl({ position, rotation = [0, 0, 0], scale = 0.8 }: {
+  position: [number, number, number],
+  rotation?: [number, number, number],
+  scale?: number
+}) {
+  const { scene } = useGLTF('/sitting_girl/scene.gltf')
+  return <primitive object={scene.clone()} position={position} rotation={rotation} scale={scale} />
 }
 
 function ClassroomScene() {
-  const groupRef = useRef<THREE.Group>(null)
-
-  useFrame(({ clock }) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y = Math.sin(clock.getElapsedTime() * 0.15) * 0.05
-    }
-  })
-
-  // Student shirt colors for variety
-  const studentColors = ['#DC2626', '#2563EB', '#059669', '#7C3AED', '#EA580C', '#0891B2', '#4F46E5', '#BE123C', '#0D9488', '#7C2D12', '#1E40AF', '#047857']
-
   return (
-    <group ref={groupRef}>
-      {/* Floor with texture */}
-      <Plane args={[14, 12]} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-        <meshStandardMaterial color="#C19A6B" roughness={0.8} />
-      </Plane>
+    <group>
+      {/* Main Classroom Environment */}
+      <ClassroomModel />
 
-      {/* Walls with better lighting */}
-      <Plane args={[14, 6]} position={[0, 3, -5.5]} receiveShadow>
-        <meshStandardMaterial color="#F5F5F5" roughness={0.9} />
-      </Plane>
-      <Plane args={[12, 6]} rotation={[0, Math.PI / 2, 0]} position={[-7, 3, 0]} receiveShadow>
-        <meshStandardMaterial color="#FAFAFA" roughness={0.9} />
-      </Plane>
-      <Plane args={[12, 6]} rotation={[0, -Math.PI / 2, 0]} position={[7, 3, 0]} receiveShadow>
-        <meshStandardMaterial color="#FAFAFA" roughness={0.9} />
-      </Plane>
+      {/* Students - Mix of sitting men and women positioned around the classroom */}
+      {/* Row 1 - Front row students */}
+      <SittingMan position={[-2.5, 0, 1]} rotation={[0, 0, 0]} scale={0.7} />
+      <SittingGirl position={[-1.2, 0, 1]} rotation={[0, 0, 0]} scale={0.7} />
+      <SittingMan position={[0, 0, 1]} rotation={[0, 0, 0]} scale={0.7} />
+      <SittingGirl position={[1.2, 0, 1]} rotation={[0, 0, 0]} scale={0.7} />
+      <SittingMan position={[2.5, 0, 1]} rotation={[0, 0, 0]} scale={0.7} />
 
-      {/* Ceiling */}
-      <Plane args={[14, 12]} rotation={[Math.PI / 2, 0, 0]} position={[0, 6, 0]}>
-        <meshStandardMaterial color="#FFFFFF" roughness={0.7} />
-      </Plane>
+      {/* Row 2 - Middle row students */}
+      <SittingGirl position={[-2.5, 0, 2.5]} rotation={[0, 0, 0]} scale={0.7} />
+      <SittingMan position={[-1.2, 0, 2.5]} rotation={[0, 0, 0]} scale={0.7} />
+      <SittingGirl position={[0, 0, 2.5]} rotation={[0, 0, 0]} scale={0.7} />
+      <SittingMan position={[1.2, 0, 2.5]} rotation={[0, 0, 0]} scale={0.7} />
+      <SittingGirl position={[2.5, 0, 2.5]} rotation={[0, 0, 0]} scale={0.7} />
 
-      {/* Ceiling lights */}
-      <Box args={[2, 0.1, 0.5]} position={[-2, 5.9, 0]}>
-        <meshStandardMaterial color="#EEEEEE" emissive="#FFFFFF" emissiveIntensity={0.3} />
-      </Box>
-      <Box args={[2, 0.1, 0.5]} position={[2, 5.9, 0]}>
-        <meshStandardMaterial color="#EEEEEE" emissive="#FFFFFF" emissiveIntensity={0.3} />
-      </Box>
-
-      {/* Whiteboard at front */}
-      <Whiteboard />
+      {/* Row 3 - Back row students */}
+      <SittingMan position={[-2.5, 0, 4]} rotation={[0, 0, 0]} scale={0.7} />
+      <SittingGirl position={[-1.2, 0, 4]} rotation={[0, 0, 0]} scale={0.7} />
+      <SittingMan position={[0, 0, 4]} rotation={[0, 0, 0]} scale={0.7} />
 
       {/* Teacher at the front */}
-      <Teacher position={[1.2, 0, -4]} />
+      <SittingMan position={[0, 0, -2]} rotation={[0, Math.PI, 0]} scale={0.8} />
 
-      {/* Student Desks and Students - 3 rows, 4 desks each */}
-      {[-3, -1, 1, 3].map((x, i) =>
-        [1.5, 3, 4.5].map((z, j) => {
-          const studentIndex = i * 3 + j
-          return (
-            <group key={`${i}-${j}`}>
-              <Desk position={[x, 0, z]} />
-              <Chair position={[x, 0, z - 0.5]} />
-              <Student position={[x, 0.35, z - 0.3]} color={studentColors[studentIndex % studentColors.length]} />
-            </group>
-          )
-        })
-      )}
-
-      {/* Teacher's Desk */}
-      <Desk position={[-1.5, 0, -3.5]} color="#4A2F1A" />
-
-      {/* Lights */}
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[5, 8, 5]} intensity={1} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048} />
-      <pointLight position={[-4, 4, 2]} intensity={0.4} color="#FFF4E6" />
-      <pointLight position={[4, 4, 2]} intensity={0.4} color="#FFF4E6" />
-      <spotLight position={[0, 5, -4]} angle={0.5} intensity={0.8} castShadow target-position={[0, 0, -4]} />
+      {/* Lighting */}
+      <ambientLight intensity={0.8} />
+      <directionalLight position={[10, 10, 5]} intensity={1.2} castShadow />
+      <pointLight position={[-5, 5, 2]} intensity={0.6} color="#FFF4E6" />
+      <pointLight position={[5, 5, 2]} intensity={0.6} color="#FFF4E6" />
+      <spotLight position={[0, 8, -2]} angle={0.5} intensity={1} castShadow />
     </group>
   )
 }
+
+// Preload the models
+useGLTF.preload('/classroom/scene.gltf')
+useGLTF.preload('/man_sitting/scene.gltf')
+useGLTF.preload('/sitting_girl/scene.gltf')
 
 export function VirtualClassroom() {
   const [isMuted, setIsMuted] = useState(true)
@@ -379,18 +96,18 @@ export function VirtualClassroom() {
             <Card className="overflow-hidden">
               <div className="aspect-video bg-gray-900 relative">
                 <Canvas shadows style={{ width: '100%', height: '100%' }}>
-                  <PerspectiveCamera makeDefault position={[0, 4, 10]} />
+                  <PerspectiveCamera makeDefault position={[0, 5, 12]} />
                   <OrbitControls
                     enablePan={true}
                     enableZoom={true}
                     enableRotate={true}
                     maxPolarAngle={Math.PI / 2.1}
-                    minDistance={6}
-                    maxDistance={18}
-                    target={[0, 1.5, 0]}
+                    minDistance={5}
+                    maxDistance={25}
+                    target={[0, 2, 0]}
                   />
                   <ClassroomScene />
-                  <color attach="background" args={['#1a1a1a']} />
+                  <color attach="background" args={['#1a1a2e']} />
                 </Canvas>
 
                 {/* Controls Overlay */}
@@ -449,11 +166,11 @@ export function VirtualClassroom() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold flex items-center gap-2">
                   <Users className="h-5 w-5" />
-                  Participants (13)
+                  Participants (14)
                 </h3>
               </div>
               <div className="space-y-2 max-h-40 overflow-y-auto">
-                {['Dr. Sarah Johnson (Instructor)', 'John Doe', 'Alice Smith', 'Bob Wilson', 'Emma Davis', 'Michael Chen', 'Lisa Garcia', 'David Kim', 'Sarah Lopez', 'Tom Anderson', 'Maria Rodriguez', 'James Taylor', 'Emily White'].map((name, i) => (
+                {['Dr. Sarah Johnson (Instructor)', 'John Doe', 'Alice Smith', 'Bob Wilson', 'Emma Davis', 'Michael Chen', 'Lisa Garcia', 'David Kim', 'Sarah Lopez', 'Tom Anderson', 'Maria Rodriguez', 'James Taylor', 'Emily White', 'Chris Brown'].map((name, i) => (
                   <div key={i} className="flex items-center gap-2 p-2 rounded hover:bg-accent">
                     <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm">
                       {name[0]}

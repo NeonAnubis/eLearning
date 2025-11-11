@@ -1,0 +1,11 @@
+Model Information:
+* title:	Sitting Girl.
+* source:	https://sketchfab.com/3d-models/sitting-girl-8f7c8a6352c64c07856dba456dbfdfd8
+* author:	3D_Models (https://sketchfab.com/3D_Objects)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Sitting Girl." (https://sketchfab.com/3d-models/sitting-girl-8f7c8a6352c64c07856dba456dbfdfd8) by 3D_Models (https://sketchfab.com/3D_Objects) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
