@@ -60,7 +60,7 @@ function Chair({ position }: { position: [number, number, number] }) {
       </Box>
       {/* Metal frame legs */}
       {[-0.22, 0.22].map((x) =>
-        [-0.22, 0.22].map((z, zIndex) => (
+        [-0.22, 0.22].map((z) => (
           <Cylinder key={`${x}-${z}`} args={[0.025, 0.025, 0.35, 16]} position={[x, 0.175, z]} castShadow>
             <meshStandardMaterial color="#2C2C2C" roughness={0.2} metalness={0.8} />
           </Cylinder>
@@ -246,7 +246,6 @@ function Whiteboard() {
         color="#2563EB"
         anchorX="center"
         anchorY="middle"
-        font="/fonts/Inter-Bold.woff"
       >
         Welcome to EduVerse
       </Text>
