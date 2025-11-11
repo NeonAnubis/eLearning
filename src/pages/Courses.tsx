@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Badge } from '../components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { Star, Users, Clock, Search } from 'lucide-react'
 import { mockCourses } from '../data/mockData'
 import { formatCurrency } from '../lib/utils'
@@ -42,27 +46,29 @@ export function Courses() {
 
           {/* Search and Filter */}
           <div className="mb-8 space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search courses..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-lg border bg-background"
-              />
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {categories.map(category => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? 'default' : 'outline'}
-                  onClick={() => setSelectedCategory(category)}
-                >
-                  {category}
-                </Button>
-              ))}
+            <div className="flex gap-4 flex-col sm:flex-row">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search courses..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-full sm:w-[200px]">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map(category => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -76,23 +82,18 @@ export function Courses() {
                 />
                 <CardHeader>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-semibold rounded">
-                      {course.category}
-                    </span>
-                    <span className="px-2 py-1 bg-secondary text-secondary-foreground text-xs font-semibold rounded">
-                      {course.level}
-                    </span>
+                    <Badge variant="default">{course.category}</Badge>
+                    <Badge variant="secondary">{course.level}</Badge>
                   </div>
                   <CardTitle className="line-clamp-2">{course.title}</CardTitle>
                   <CardDescription className="line-clamp-2">{course.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1">
                   <div className="flex items-center gap-3 mb-3">
-                    <img
-                      src={course.instructorAvatar}
-                      alt={course.instructor}
-                      className="h-8 w-8 rounded-full object-cover"
-                    />
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={course.instructorAvatar} alt={course.instructor} />
+                      <AvatarFallback>{course.instructor[0]}</AvatarFallback>
+                    </Avatar>
                     <span className="text-sm font-medium">{course.instructor}</span>
                   </div>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">

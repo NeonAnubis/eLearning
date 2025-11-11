@@ -4,6 +4,10 @@ import { OrbitControls, PerspectiveCamera, Text, Box, Plane, Sphere, Cylinder } 
 import * as THREE from 'three'
 import { Button } from './ui/button'
 import { Card } from './ui/card'
+import { ScrollArea } from './ui/scroll-area'
+import { Avatar, AvatarFallback } from './ui/avatar'
+import { Badge } from './ui/badge'
+import { Input } from './ui/input'
 import { Video, Mic, MicOff, VideoOff, Users, MessageSquare, Hand, Monitor } from 'lucide-react'
 
 // Stylish Modern Desk
@@ -452,17 +456,19 @@ export function VirtualClassroom() {
                   Participants (13)
                 </h3>
               </div>
-              <div className="space-y-2 max-h-40 overflow-y-auto">
-                {['Dr. Sarah Johnson (Instructor)', 'John Doe', 'Alice Smith', 'Bob Wilson', 'Emma Davis', 'Michael Chen', 'Lisa Garcia', 'David Kim', 'Sarah Lopez', 'Tom Anderson', 'Maria Rodriguez', 'James Taylor', 'Emily White'].map((name, i) => (
-                  <div key={i} className="flex items-center gap-2 p-2 rounded hover:bg-accent">
-                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm">
-                      {name[0]}
+              <ScrollArea className="h-40">
+                <div className="space-y-2">
+                  {['Dr. Sarah Johnson (Instructor)', 'John Doe', 'Alice Smith', 'Bob Wilson', 'Emma Davis', 'Michael Chen', 'Lisa Garcia', 'David Kim', 'Sarah Lopez', 'Tom Anderson', 'Maria Rodriguez', 'James Taylor', 'Emily White'].map((name, i) => (
+                    <div key={i} className="flex items-center gap-2 p-2 rounded hover:bg-accent cursor-pointer">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>{name[0]}</AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm flex-1">{name}</span>
+                      {i === 0 && <Badge variant="secondary">Host</Badge>}
                     </div>
-                    <span className="text-sm">{name}</span>
-                    {i === 0 && <span className="text-xs bg-primary/20 px-2 py-0.5 rounded">Host</span>}
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </ScrollArea>
             </Card>
 
             {/* Chat */}
@@ -473,25 +479,27 @@ export function VirtualClassroom() {
                   Chat
                 </h3>
               </div>
-              <div className="space-y-3 max-h-60 overflow-y-auto mb-3">
-                <div className="text-sm">
-                  <p className="font-medium text-xs text-muted-foreground mb-1">Dr. Sarah Johnson</p>
-                  <p className="bg-accent p-2 rounded">Welcome everyone to today's session on Advanced Web Development!</p>
+              <ScrollArea className="h-60 mb-3">
+                <div className="space-y-3">
+                  <div className="text-sm">
+                    <p className="font-medium text-xs text-muted-foreground mb-1">Dr. Sarah Johnson</p>
+                    <p className="bg-accent p-2 rounded">Welcome everyone to today's session on Advanced Web Development!</p>
+                  </div>
+                  <div className="text-sm">
+                    <p className="font-medium text-xs text-muted-foreground mb-1">John Doe</p>
+                    <p className="bg-accent p-2 rounded">Thank you! Excited to learn about Three.js.</p>
+                  </div>
+                  <div className="text-sm">
+                    <p className="font-medium text-xs text-muted-foreground mb-1">Alice Smith</p>
+                    <p className="bg-accent p-2 rounded">This 3D classroom is amazing!</p>
+                  </div>
                 </div>
-                <div className="text-sm">
-                  <p className="font-medium text-xs text-muted-foreground mb-1">John Doe</p>
-                  <p className="bg-accent p-2 rounded">Thank you! Excited to learn about Three.js.</p>
-                </div>
-                <div className="text-sm">
-                  <p className="font-medium text-xs text-muted-foreground mb-1">Alice Smith</p>
-                  <p className="bg-accent p-2 rounded">This 3D classroom is amazing!</p>
-                </div>
-              </div>
+              </ScrollArea>
               <div className="flex gap-2">
-                <input
+                <Input
                   type="text"
                   placeholder="Type a message..."
-                  className="flex-1 px-3 py-2 text-sm border rounded-md bg-background"
+                  className="flex-1"
                 />
                 <Button size="sm">Send</Button>
               </div>

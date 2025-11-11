@@ -1,7 +1,16 @@
-import { Moon, Sun, Menu, LogOut, BookOpen } from 'lucide-react'
+import { Moon, Sun, Menu, LogOut, BookOpen, User, Settings } from 'lucide-react'
 import { useThemeStore } from '../../store/themeStore'
 import { useAuthStore } from '../../store/authStore'
 import { Button } from '../ui/button'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -56,24 +65,39 @@ export function Header() {
           </Button>
 
           {isAuthenticated ? (
-            <div className="hidden md:flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <img
-                  src={user?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop'}
-                  alt={user?.name}
-                  className="h-8 w-8 rounded-full object-cover"
-                />
-                <span className="text-sm font-medium">{user?.name}</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleLogout}
-                title="Logout"
-              >
-                <LogOut className="h-5 w-5" />
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="hidden md:flex items-center gap-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage
+                      src={user?.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop'}
+                      alt={user?.name}
+                    />
+                    <AvatarFallback>{user?.name?.[0] || 'U'}</AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium">{user?.name}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Dashboard</span>
+                </DropdownMenuItem>
+                {user?.role === 'admin' && (
+                  <DropdownMenuItem onClick={() => navigate('/admin')}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Admin Panel</span>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <div className="hidden md:flex items-center gap-2">
               <Button variant="ghost" onClick={() => navigate('/signin')}>
