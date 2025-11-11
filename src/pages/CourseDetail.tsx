@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { mockCourses } from '../data/mockData'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
 import { Star, Users, Clock, PlayCircle, CheckCircle, CreditCard } from 'lucide-react'
 import { formatCurrency } from '../lib/utils'
 import { useAuthStore } from '../store/authStore'
@@ -220,28 +221,25 @@ export function CourseDetail() {
 
                         <div className="space-y-2">
                           <label className="text-sm font-medium">Card Number</label>
-                          <input
+                          <Input
                             type="text"
                             placeholder="1234 5678 9012 3456"
-                            className="w-full px-3 py-2 border rounded-md"
                           />
                         </div>
 
                         <div className="grid grid-cols-2 gap-2">
                           <div className="space-y-2">
                             <label className="text-sm font-medium">Expiry</label>
-                            <input
+                            <Input
                               type="text"
                               placeholder="MM/YY"
-                              className="w-full px-3 py-2 border rounded-md"
                             />
                           </div>
                           <div className="space-y-2">
                             <label className="text-sm font-medium">CVV</label>
-                            <input
+                            <Input
                               type="text"
                               placeholder="123"
-                              className="w-full px-3 py-2 border rounded-md"
                             />
                           </div>
                         </div>

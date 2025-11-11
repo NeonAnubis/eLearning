@@ -366,6 +366,25 @@ export function VirtualClassroom() {
   const [isMuted, setIsMuted] = useState(true)
   const [isVideoOff, setIsVideoOff] = useState(false)
   const [handRaised, setHandRaised] = useState(false)
+  const [chatMessages, setChatMessages] = useState([
+    { name: 'Dr. Sarah Johnson', message: 'Welcome everyone to today\'s session on Advanced Web Development!' },
+    { name: 'John Doe', message: 'Thank you! Excited to learn about Three.js.' },
+    { name: 'Alice Smith', message: 'This 3D classroom is amazing!' }
+  ])
+  const [currentMessage, setCurrentMessage] = useState('')
+
+  const handleSendMessage = () => {
+    if (currentMessage.trim()) {
+      setChatMessages([...chatMessages, { name: 'You', message: currentMessage }])
+      setCurrentMessage('')
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSendMessage()
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -481,18 +500,12 @@ export function VirtualClassroom() {
               </div>
               <ScrollArea className="h-60 mb-3">
                 <div className="space-y-3">
-                  <div className="text-sm">
-                    <p className="font-medium text-xs text-muted-foreground mb-1">Dr. Sarah Johnson</p>
-                    <p className="bg-accent p-2 rounded">Welcome everyone to today's session on Advanced Web Development!</p>
-                  </div>
-                  <div className="text-sm">
-                    <p className="font-medium text-xs text-muted-foreground mb-1">John Doe</p>
-                    <p className="bg-accent p-2 rounded">Thank you! Excited to learn about Three.js.</p>
-                  </div>
-                  <div className="text-sm">
-                    <p className="font-medium text-xs text-muted-foreground mb-1">Alice Smith</p>
-                    <p className="bg-accent p-2 rounded">This 3D classroom is amazing!</p>
-                  </div>
+                  {chatMessages.map((msg, i) => (
+                    <div key={i} className="text-sm">
+                      <p className="font-medium text-xs text-muted-foreground mb-1">{msg.name}</p>
+                      <p className="bg-accent p-2 rounded">{msg.message}</p>
+                    </div>
+                  ))}
                 </div>
               </ScrollArea>
               <div className="flex gap-2">
@@ -500,8 +513,11 @@ export function VirtualClassroom() {
                   type="text"
                   placeholder="Type a message..."
                   className="flex-1"
+                  value={currentMessage}
+                  onChange={(e) => setCurrentMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
                 />
-                <Button size="sm">Send</Button>
+                <Button size="sm" onClick={handleSendMessage}>Send</Button>
               </div>
             </Card>
 
