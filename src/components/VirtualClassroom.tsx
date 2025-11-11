@@ -43,9 +43,9 @@ function Desk({ position, color = '#6B4423' }: { position: [number, number, numb
 }
 
 // Modern Chair (facing forward toward the whiteboard)
-function Chair({ position }: { position: [number, number, number] }) {
+function Chair({ position, rotation = [0, 0, 0] }: { position: [number, number, number], rotation?: [number, number, number] }) {
   return (
-    <group position={position}>
+    <group position={position} rotation={rotation}>
       {/* Seat */}
       <Box args={[0.55, 0.08, 0.55]} position={[0, 0.35, 0]} castShadow>
         <meshStandardMaterial color="#1E40AF" roughness={0.4} metalness={0.1} />
@@ -78,7 +78,7 @@ function Chair({ position }: { position: [number, number, number] }) {
 }
 
 // Student 3D Model
-function Student({ position, color }: { position: [number, number, number], color: string }) {
+function Student({ position, color, rotation = [0, 0, 0] }: { position: [number, number, number], color: string, rotation?: [number, number, number] }) {
   const headRef = useRef<THREE.Group>(null)
 
   useFrame(({ clock }) => {
@@ -89,7 +89,7 @@ function Student({ position, color }: { position: [number, number, number], colo
   })
 
   return (
-    <group position={position}>
+    <group position={position} rotation={rotation}>
       {/* Body */}
       <Box args={[0.35, 0.5, 0.25]} position={[0, 0.65, 0]} castShadow>
         <meshStandardMaterial color={color} />
@@ -338,8 +338,8 @@ function ClassroomScene() {
           return (
             <group key={`${i}-${j}`}>
               <Desk position={[x, 0, z]} />
-              <Chair position={[x, 0, z - 0.5]} />
-              <Student position={[x, 0.35, z - 0.3]} color={studentColors[studentIndex % studentColors.length]} />
+              <Chair position={[x, 0, z + 0.5]} rotation={[0, Math.PI, 0]} />
+              <Student position={[x, 0.35, z + 0.3]} color={studentColors[studentIndex % studentColors.length]} rotation={[0, Math.PI, 0]} />
             </group>
           )
         })
