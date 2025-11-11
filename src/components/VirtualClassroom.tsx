@@ -1,18 +1,18 @@
-import { useRef, useState } from 'react'
+import { Suspense, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera, useGLTF } from '@react-three/drei'
 import { Button } from './ui/button'
 import { Card } from './ui/card'
 import { Video, Mic, MicOff, VideoOff, Users, MessageSquare, Hand, Monitor } from 'lucide-react'
 
-// Classroom Model Component
+// Classroom Environment Model
 function ClassroomModel() {
   const { scene } = useGLTF('/classroom/scene.gltf')
-  return <primitive object={scene} scale={1.5} position={[0, 0, 0]} />
+  return <primitive object={scene} />
 }
 
-// Sitting Man Model Component
-function SittingMan({ position, rotation = [0, 0, 0], scale = 0.8 }: {
+// Sitting Man Model - Represents male students and teacher
+function SittingMan({ position, rotation = [0, 0, 0], scale = 1 }: {
   position: [number, number, number],
   rotation?: [number, number, number],
   scale?: number
@@ -21,8 +21,8 @@ function SittingMan({ position, rotation = [0, 0, 0], scale = 0.8 }: {
   return <primitive object={scene.clone()} position={position} rotation={rotation} scale={scale} />
 }
 
-// Sitting Girl Model Component
-function SittingGirl({ position, rotation = [0, 0, 0], scale = 0.8 }: {
+// Sitting Girl Model - Represents female students
+function SittingGirl({ position, rotation = [0, 0, 0], scale = 1 }: {
   position: [number, number, number],
   rotation?: [number, number, number],
   scale?: number
@@ -31,46 +31,95 @@ function SittingGirl({ position, rotation = [0, 0, 0], scale = 0.8 }: {
   return <primitive object={scene.clone()} position={position} rotation={rotation} scale={scale} />
 }
 
+// Standing Teacher Model (using sitting man but positioned to appear standing/teaching)
+function Teacher({ position, rotation = [0, 0, 0] }: {
+  position: [number, number, number],
+  rotation?: [number, number, number]
+}) {
+  const { scene } = useGLTF('/man_sitting/scene.gltf')
+  return <primitive object={scene.clone()} position={position} rotation={rotation} scale={1.1} />
+}
+
 function ClassroomScene() {
   return (
     <group>
-      {/* Main Classroom Environment */}
+      {/* Main Classroom Environment (contains desks, chairs, blackboard, floor, walls) */}
       <ClassroomModel />
 
-      {/* Students - Mix of sitting men and women positioned around the classroom */}
-      {/* Row 1 - Front row students */}
-      <SittingMan position={[-2.5, 0, 1]} rotation={[0, 0, 0]} scale={0.7} />
-      <SittingGirl position={[-1.2, 0, 1]} rotation={[0, 0, 0]} scale={0.7} />
-      <SittingMan position={[0, 0, 1]} rotation={[0, 0, 0]} scale={0.7} />
-      <SittingGirl position={[1.2, 0, 1]} rotation={[0, 0, 0]} scale={0.7} />
-      <SittingMan position={[2.5, 0, 1]} rotation={[0, 0, 0]} scale={0.7} />
+      {/*
+        TEACHER positioned at the front near the blackboard
+        - Facing the students (rotation Y = Math.PI means facing forward)
+        - Standing in front of the blackboard to explain the lesson
+      */}
+      <Teacher position={[0, 0, -5]} rotation={[0, Math.PI, 0]} />
 
-      {/* Row 2 - Middle row students */}
-      <SittingGirl position={[-2.5, 0, 2.5]} rotation={[0, 0, 0]} scale={0.7} />
-      <SittingMan position={[-1.2, 0, 2.5]} rotation={[0, 0, 0]} scale={0.7} />
-      <SittingGirl position={[0, 0, 2.5]} rotation={[0, 0, 0]} scale={0.7} />
-      <SittingMan position={[1.2, 0, 2.5]} rotation={[0, 0, 0]} scale={0.7} />
-      <SittingGirl position={[2.5, 0, 2.5]} rotation={[0, 0, 0]} scale={0.7} />
+      {/*
+        STUDENTS sitting at desks in organized rows
+        The classroom model should have desks/chairs already positioned
+        We're placing students to sit at those desks
 
-      {/* Row 3 - Back row students */}
-      <SittingMan position={[-2.5, 0, 4]} rotation={[0, 0, 0]} scale={0.7} />
-      <SittingGirl position={[-1.2, 0, 4]} rotation={[0, 0, 0]} scale={0.7} />
-      <SittingMan position={[0, 0, 4]} rotation={[0, 0, 0]} scale={0.7} />
+        Layout: 4 rows with 3-4 students each
+        All students face forward toward the teacher and blackboard
+      */}
 
-      {/* Teacher at the front */}
-      <SittingMan position={[0, 0, -2]} rotation={[0, Math.PI, 0]} scale={0.8} />
+      {/* Front Row - 4 students */}
+      <SittingGirl position={[-3, 0, -2]} rotation={[0, 0, 0]} scale={0.95} />
+      <SittingMan position={[-1, 0, -2]} rotation={[0, 0, 0]} scale={0.95} />
+      <SittingGirl position={[1, 0, -2]} rotation={[0, 0, 0]} scale={0.95} />
+      <SittingMan position={[3, 0, -2]} rotation={[0, 0, 0]} scale={0.95} />
 
-      {/* Lighting */}
-      <ambientLight intensity={0.8} />
-      <directionalLight position={[10, 10, 5]} intensity={1.2} castShadow />
-      <pointLight position={[-5, 5, 2]} intensity={0.6} color="#FFF4E6" />
-      <pointLight position={[5, 5, 2]} intensity={0.6} color="#FFF4E6" />
-      <spotLight position={[0, 8, -2]} angle={0.5} intensity={1} castShadow />
+      {/* Second Row - 4 students */}
+      <SittingMan position={[-3, 0, 0]} rotation={[0, 0, 0]} scale={0.95} />
+      <SittingGirl position={[-1, 0, 0]} rotation={[0, 0, 0]} scale={0.95} />
+      <SittingMan position={[1, 0, 0]} rotation={[0, 0, 0]} scale={0.95} />
+      <SittingGirl position={[3, 0, 0]} rotation={[0, 0, 0]} scale={0.95} />
+
+      {/* Third Row - 4 students */}
+      <SittingGirl position={[-3, 0, 2]} rotation={[0, 0, 0]} scale={0.95} />
+      <SittingMan position={[-1, 0, 2]} rotation={[0, 0, 0]} scale={0.95} />
+      <SittingGirl position={[1, 0, 2]} rotation={[0, 0, 0]} scale={0.95} />
+      <SittingMan position={[3, 0, 2]} rotation={[0, 0, 0]} scale={0.95} />
+
+      {/* Back Row - 3 students */}
+      <SittingMan position={[-2, 0, 4]} rotation={[0, 0, 0]} scale={0.95} />
+      <SittingGirl position={[0, 0, 4]} rotation={[0, 0, 0]} scale={0.95} />
+      <SittingMan position={[2, 0, 4]} rotation={[0, 0, 0]} scale={0.95} />
+
+      {/* Professional Classroom Lighting */}
+      <ambientLight intensity={0.7} />
+      <directionalLight
+        position={[8, 12, 6]}
+        intensity={1.5}
+        castShadow
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-far={50}
+        shadow-camera-left={-10}
+        shadow-camera-right={10}
+        shadow-camera-top={10}
+        shadow-camera-bottom={-10}
+      />
+
+      {/* Ceiling lights simulation */}
+      <pointLight position={[-4, 6, -2]} intensity={0.8} color="#FFF8E1" distance={12} />
+      <pointLight position={[4, 6, -2]} intensity={0.8} color="#FFF8E1" distance={12} />
+      <pointLight position={[-4, 6, 2]} intensity={0.8} color="#FFF8E1" distance={12} />
+      <pointLight position={[4, 6, 2]} intensity={0.8} color="#FFF8E1" distance={12} />
+
+      {/* Spotlight on the teacher/blackboard area */}
+      <spotLight
+        position={[0, 8, -3]}
+        angle={0.6}
+        intensity={1.2}
+        castShadow
+        target-position={[0, 1, -5]}
+        penumbra={0.3}
+      />
     </group>
   )
 }
 
-// Preload the models
+// Preload all GLTF models for better performance
 useGLTF.preload('/classroom/scene.gltf')
 useGLTF.preload('/man_sitting/scene.gltf')
 useGLTF.preload('/sitting_girl/scene.gltf')
@@ -95,19 +144,24 @@ export function VirtualClassroom() {
           <div className="lg:col-span-3">
             <Card className="overflow-hidden">
               <div className="aspect-video bg-gray-900 relative">
-                <Canvas shadows style={{ width: '100%', height: '100%' }}>
-                  <PerspectiveCamera makeDefault position={[0, 5, 12]} />
-                  <OrbitControls
-                    enablePan={true}
-                    enableZoom={true}
-                    enableRotate={true}
-                    maxPolarAngle={Math.PI / 2.1}
-                    minDistance={5}
-                    maxDistance={25}
-                    target={[0, 2, 0]}
-                  />
-                  <ClassroomScene />
-                  <color attach="background" args={['#1a1a2e']} />
+                <Canvas shadows camera={{ position: [0, 6, 14], fov: 60 }}>
+                  <Suspense fallback={null}>
+                    <PerspectiveCamera makeDefault position={[0, 6, 14]} fov={60} />
+                    <OrbitControls
+                      enablePan={true}
+                      enableZoom={true}
+                      enableRotate={true}
+                      maxPolarAngle={Math.PI / 2.2}
+                      minPolarAngle={Math.PI / 6}
+                      minDistance={8}
+                      maxDistance={30}
+                      target={[0, 2, -1]}
+                      enableDamping
+                      dampingFactor={0.05}
+                    />
+                    <ClassroomScene />
+                    <color attach="background" args={['#0f172a']} />
+                  </Suspense>
                 </Canvas>
 
                 {/* Controls Overlay */}
@@ -151,10 +205,11 @@ export function VirtualClassroom() {
             <Card className="mt-4 p-4">
               <h3 className="font-semibold mb-2">Navigation Controls</h3>
               <ul className="text-sm text-muted-foreground space-y-1">
-                <li>• Click and drag to rotate the view</li>
-                <li>• Scroll to zoom in/out</li>
-                <li>• Right-click and drag to pan</li>
-                <li>• Use the bottom controls for mic, camera, and interactions</li>
+                <li>• Click and drag to rotate the camera around the classroom</li>
+                <li>• Scroll to zoom in/out for closer inspection</li>
+                <li>• Right-click and drag to pan across the room</li>
+                <li>• Use the bottom controls for mic, camera, and classroom interactions</li>
+                <li>• Explore the classroom to see the teacher explaining at the blackboard</li>
               </ul>
             </Card>
           </div>
@@ -166,17 +221,34 @@ export function VirtualClassroom() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold flex items-center gap-2">
                   <Users className="h-5 w-5" />
-                  Participants (14)
+                  Participants (16)
                 </h3>
               </div>
               <div className="space-y-2 max-h-40 overflow-y-auto">
-                {['Dr. Sarah Johnson (Instructor)', 'John Doe', 'Alice Smith', 'Bob Wilson', 'Emma Davis', 'Michael Chen', 'Lisa Garcia', 'David Kim', 'Sarah Lopez', 'Tom Anderson', 'Maria Rodriguez', 'James Taylor', 'Emily White', 'Chris Brown'].map((name, i) => (
+                {[
+                  'Prof. David Martinez (Instructor)',
+                  'Emma Johnson',
+                  'Michael Chen',
+                  'Sarah Williams',
+                  'James Anderson',
+                  'Olivia Garcia',
+                  'William Brown',
+                  'Sophia Davis',
+                  'Robert Miller',
+                  'Isabella Wilson',
+                  'John Taylor',
+                  'Mia Thomas',
+                  'David Moore',
+                  'Emily Jackson',
+                  'Daniel White',
+                  'Ava Harris'
+                ].map((name, i) => (
                   <div key={i} className="flex items-center gap-2 p-2 rounded hover:bg-accent">
                     <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm">
                       {name[0]}
                     </div>
                     <span className="text-sm">{name}</span>
-                    {i === 0 && <span className="text-xs bg-primary/20 px-2 py-0.5 rounded">Host</span>}
+                    {i === 0 && <span className="text-xs bg-primary/20 px-2 py-0.5 rounded">Instructor</span>}
                   </div>
                 ))}
               </div>
@@ -192,16 +264,20 @@ export function VirtualClassroom() {
               </div>
               <div className="space-y-3 max-h-60 overflow-y-auto mb-3">
                 <div className="text-sm">
-                  <p className="font-medium text-xs text-muted-foreground mb-1">Dr. Sarah Johnson</p>
-                  <p className="bg-accent p-2 rounded">Welcome everyone to today's session on Advanced Web Development!</p>
+                  <p className="font-medium text-xs text-muted-foreground mb-1">Prof. David Martinez</p>
+                  <p className="bg-accent p-2 rounded">Welcome everyone! Today we'll explore advanced concepts in 3D web development.</p>
                 </div>
                 <div className="text-sm">
-                  <p className="font-medium text-xs text-muted-foreground mb-1">John Doe</p>
-                  <p className="bg-accent p-2 rounded">Thank you! Excited to learn about Three.js.</p>
+                  <p className="font-medium text-xs text-muted-foreground mb-1">Emma Johnson</p>
+                  <p className="bg-accent p-2 rounded">Thank you Professor! Looking forward to this session.</p>
                 </div>
                 <div className="text-sm">
-                  <p className="font-medium text-xs text-muted-foreground mb-1">Alice Smith</p>
-                  <p className="bg-accent p-2 rounded">This 3D classroom is amazing!</p>
+                  <p className="font-medium text-xs text-muted-foreground mb-1">Michael Chen</p>
+                  <p className="bg-accent p-2 rounded">This virtual classroom is incredible! So immersive!</p>
+                </div>
+                <div className="text-sm">
+                  <p className="font-medium text-xs text-muted-foreground mb-1">Sarah Williams</p>
+                  <p className="bg-accent p-2 rounded">Can't wait to learn about Three.js and WebGL!</p>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -220,15 +296,19 @@ export function VirtualClassroom() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Status:</span>
-                  <span className="font-medium text-green-600">Live</span>
+                  <span className="font-medium text-green-600">Live Session</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Duration:</span>
-                  <span className="font-medium">1h 15min</span>
+                  <span className="font-medium">1h 30min</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Topic:</span>
+                  <span className="font-medium">3D Web Development</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Course:</span>
-                  <span className="font-medium">Web Dev Bootcamp</span>
+                  <span className="font-medium">Advanced Web Dev</span>
                 </div>
               </div>
             </Card>
