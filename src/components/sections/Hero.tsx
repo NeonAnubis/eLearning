@@ -18,7 +18,10 @@ export function Hero() {
           playsInline
           className="w-full h-full object-cover"
         >
-          <source src="https://cdn.coverr.co/videos/coverr-students-in-a-library-studying-4764/1080p.mp4" type="video/mp4" />
+          {/* Free educational videos from Pexels - No copyright, free to use */}
+          <source src="https://videos.pexels.com/video-files/5198157/5198157-uhd_2560_1440_25fps.mp4" type="video/mp4" />
+          <source src="https://videos.pexels.com/video-files/5198159/5198159-uhd_2560_1440_25fps.mp4" type="video/mp4" />
+          <source src="https://videos.pexels.com/video-files/3196539/3196539-uhd_2560_1440_25fps.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/70 to-black/50" />
       </div>
